@@ -1,0 +1,63 @@
+type Query {
+  article(id: ID!): Article!
+  diary(id: ID!): Diary!
+  articles: [Article!]!
+  diaries: [Diary!]!
+}
+
+type Article {
+  id: ID!
+  title: String!
+  content: String!
+  user: User!
+  created_at: Time!
+  updated_at: Time
+}
+
+type Diary {
+  id: ID!
+  title: String!
+  content: String!
+  user: User!
+  created_at: Time!
+  updated_at: Time
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+
+input NewArticle {
+  title: String!
+  content: String!
+}
+
+input NewDiary {
+  title: String!
+  content: String!
+}
+
+input RefreshTokenInput {
+  token: String!
+}
+
+input NewUser {
+  username: String!
+  password: String!
+}
+
+input Login {
+  username: String!
+  password: String!
+}
+
+type Mutation {
+  createArticle(input: NewArticle!): Article!
+  createDiary(input: NewDiary!): Diary!
+  createUser(input: NewUser!): String!
+  login(input: Login!): String!
+  refreshToken(input: RefreshTokenInput!): String!
+}
+
+scalar Time
