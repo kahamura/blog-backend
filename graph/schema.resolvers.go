@@ -13,11 +13,25 @@ import (
 )
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	var article model.Article
+	var user model.User
+	article.Title = input.Title
+	article.Content = input.Content
+	article.CreatedAt = time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local)
+	user.Name = "test"
+	article.User = &user
+	return &article, nil
 }
 
 func (r *mutationResolver) CreateDiary(ctx context.Context, input model.NewDiary) (*model.Diary, error) {
-	panic(fmt.Errorf("not implemented"))
+	var diary model.Diary
+	var user model.User
+	diary.Title = input.Title
+	diary.Content = input.Content
+	diary.CreatedAt = time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local)
+	user.Name = "testname"
+	diary.User = &user
+	return &diary, nil
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
