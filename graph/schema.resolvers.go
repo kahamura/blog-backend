@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/ka-aki/blog-backend/graph/generated"
 	"github.com/ka-aki/blog-backend/graph/model"
@@ -32,19 +33,47 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*model.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.Article{
+		ID:        "1",
+		Title:     "This is dummy article title",
+		User:      &model.User{Name: "Selena Gomez"},
+		Content:   "dummy content",
+		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	}, nil
 }
 
 func (r *queryResolver) Diary(ctx context.Context, id string) (*model.Diary, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.Diary{
+		ID:        "1",
+		Title:     "This is dummy diary title",
+		User:      &model.User{Name: "Selena Gomez"},
+		Content:   "dummy diary content",
+		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	}, nil
 }
 
 func (r *queryResolver) Articles(ctx context.Context) ([]*model.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	var articles []*model.Article
+	dummyArticle := model.Article{
+		ID:        "2",
+		Title:     "my dummy article",
+		User:      &model.User{Name: "Britney Spears"},
+		Content:   "She is so cute",
+		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	}
+	return append(articles, &dummyArticle), nil
 }
 
 func (r *queryResolver) Diaries(ctx context.Context) ([]*model.Diary, error) {
-	panic(fmt.Errorf("not implemented"))
+	var diaries []*model.Diary
+	dummyDiary := model.Diary{
+		ID:        "2",
+		Title:     "my dummy diary",
+		User:      &model.User{Name: "Britney Spears"},
+		Content:   "I spend whole time sleeping today.",
+		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	}
+	return append(diaries, &dummyDiary), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
