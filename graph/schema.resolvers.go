@@ -6,21 +6,30 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/ka-aki/blog-backend/graph/generated"
 	"github.com/ka-aki/blog-backend/graph/model"
+	"github.com/ka-aki/blog-backend/internal/articles"
 )
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
-	var article model.Article
-	var user model.User
+	var article articles.Article
+
 	article.Title = input.Title
 	article.Content = input.Content
-	article.CreatedAt = time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local)
-	user.Name = "test"
-	article.User = &user
-	return &article, nil
+	article.CreatedAt = time.Now()
+	article.UpdatedAt = time.Now()
+	articleID := article.Save()
+
+	return &model.Article{
+		ID:        strconv.FormatInt(articleID, 10),
+		Title:     article.Title,
+		Content:   article.Content,
+		CreatedAt: article.CreatedAt,
+		UpdatedAt: article.UpdatedAt,
+	}, nil
 }
 
 func (r *mutationResolver) CreateDiary(ctx context.Context, input model.NewDiary) (*model.Diary, error) {
