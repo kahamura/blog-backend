@@ -12,15 +12,16 @@ import (
 	"github.com/ka-aki/blog-backend/graph/generated"
 	"github.com/ka-aki/blog-backend/graph/model"
 	"github.com/ka-aki/blog-backend/internal/articles"
+	"github.com/ka-aki/blog-backend/internal/diaries"
 )
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
-	var article articles.Article
-
-	article.Title = input.Title
-	article.Content = input.Content
-	article.CreatedAt = time.Now()
-	article.UpdatedAt = time.Now()
+	article := articles.Article{
+		Title:     input.Title,
+		Content:   input.Content,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
 	articleID := article.Save()
 
 	return &model.Article{
@@ -33,14 +34,22 @@ func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArt
 }
 
 func (r *mutationResolver) CreateDiary(ctx context.Context, input model.NewDiary) (*model.Diary, error) {
-	var diary model.Diary
-	var user model.User
-	diary.Title = input.Title
-	diary.Content = input.Content
-	diary.CreatedAt = time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local)
-	user.Name = "testname"
-	diary.User = &user
-	return &diary, nil
+	diary := diaries.Diary{
+		Title:     input.Title,
+		Content:   input.Content,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	diaryID := diary.Save()
+
+	return &model.Diary{
+		ID:        strconv.FormatInt(diaryID, 10),
+		Title:     diary.Title,
+		Content:   diary.Content,
+		CreatedAt: diary.CreatedAt,
+		UpdatedAt: diary.UpdatedAt,
+	}, nil
+
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
@@ -76,27 +85,39 @@ func (r *queryResolver) Diary(ctx context.Context, id string) (*model.Diary, err
 }
 
 func (r *queryResolver) Articles(ctx context.Context) ([]*model.Article, error) {
-	var articles []*model.Article
-	dummyArticle := model.Article{
-		ID:        "2",
-		Title:     "my dummy article",
-		User:      &model.User{Name: "Britney Spears"},
-		Content:   "She is so cute",
-		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	var resultArticles []*model.Article
+	var dbArticles []articles.Article
+
+	dbArticles = articles.GetAll()
+	for _, article := range dbArticles {
+		resultArticles = append(resultArticles, &model.Article{
+			ID:        article.ID,
+			Title:     article.Title,
+			Content:   article.Content,
+			CreatedAt: article.CreatedAt,
+			UpdatedAt: article.UpdatedAt,
+		})
 	}
-	return append(articles, &dummyArticle), nil
+
+	return resultArticles, nil
 }
 
 func (r *queryResolver) Diaries(ctx context.Context) ([]*model.Diary, error) {
-	var diaries []*model.Diary
-	dummyDiary := model.Diary{
-		ID:        "2",
-		Title:     "my dummy diary",
-		User:      &model.User{Name: "Britney Spears"},
-		Content:   "I spend whole time sleeping today.",
-		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+	var resultDiaries []*model.Diary
+	var dbDiaries []diaries.Diary
+
+	dbDiaries = diaries.GetAll()
+	for _, diary := range dbDiaries {
+		resultDiaries = append(resultDiaries, &model.Diary{
+			ID:        diary.ID,
+			Title:     diary.Title,
+			Content:   diary.Content,
+			CreatedAt: diary.CreatedAt,
+			UpdatedAt: diary.UpdatedAt,
+		})
 	}
-	return append(diaries, &dummyDiary), nil
+
+	return resultDiaries, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

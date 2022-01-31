@@ -1,4 +1,4 @@
-package articles
+package diaries
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"github.com/ka-aki/blog-backend/internal/users"
 )
 
-type Article struct {
+type Diary struct {
 	ID        string
 	Title     string
 	Content   string
@@ -17,8 +17,8 @@ type Article struct {
 	UpdatedAt time.Time
 }
 
-func GetAll() []Article {
-	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from articles")
+func GetAll() []Diary {
+	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from diaries")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,29 +30,29 @@ func GetAll() []Article {
 	}
 	defer rows.Close()
 
-	var articles []Article
+	var diaries []Diary
 	for rows.Next() {
-		var article Article
-		err := rows.Scan(&article.ID, &article.Title, &article.Content, &article.CreatedAt, &article.UpdatedAt)
+		var diary Diary
+		err := rows.Scan(&diary.ID, &diary.Title, &diary.Content, &diary.CreatedAt, &diary.UpdatedAt)
 		if err != nil {
 			log.Fatal(err)
 		}
-		articles = append(articles, article)
+		diaries = append(diaries, diary)
 	}
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	return articles
+	return diaries
 }
 
-func (article Article) Save() int64 {
-	stmt, err := database.Db.Prepare("INSERT INTO articles(title, content, created_at, updated_at) VALUES(?,?,?,?)")
+func (diary Diary) Save() int64 {
+	stmt, err := database.Db.Prepare("INSERT INTO diaries(title, content, created_at, updated_at) VALUES(?,?,?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	res, err := stmt.Exec(article.Title, article.Content, article.CreatedAt, article.UpdatedAt)
+	res, err := stmt.Exec(diary.Title, diary.Content, diary.CreatedAt, diary.UpdatedAt)
 	if err != nil {
 		log.Fatal(err)
 	}
