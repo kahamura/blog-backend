@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS diaries(
     updated_at timestamp NOT NULL,
     FOREIGN KEY (userID) REFERENCES users(id) ,
     PRIMARY KEY (id)
-)
+)DEFAULT CHARACTER SET=utf8mb4;

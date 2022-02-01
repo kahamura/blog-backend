@@ -24,7 +24,7 @@ func EnvLoad() {
 func InitDB() {
 	EnvLoad()
 
-	db, err := sql.Open("mysql", os.Getenv("DB_USER")+":"+os.Getenv("DB_PASSWORD")+"@tcp(localhost)/"+os.Getenv("DB_DATABASE_NAME"))
+	db, err := sql.Open("mysql", os.Getenv("DB_USER")+":"+os.Getenv("DB_PASSWORD")+"@tcp(localhost)/"+os.Getenv("DB_DATABASE_NAME")+"?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		log.Panic(err)
 	}

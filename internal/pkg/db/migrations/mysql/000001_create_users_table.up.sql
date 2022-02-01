@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS users(
     created_at timestamp NOT NULL,
     updated_at timestamp NOT NULL,
     PRIMARY KEY (id)
-)
+)DEFAULT CHARACTER SET=utf8mb4;
