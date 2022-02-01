@@ -46,6 +46,22 @@ func GetAll() []Article {
 	return articles
 }
 
+func GetArticle(id string) Article {
+	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from articles where id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	var article Article
+	err = stmt.QueryRow(id).Scan(&article.ID, &article.Title, &article.Content, &article.CreatedAt, &article.UpdatedAt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return article
+}
+
 func (article Article) Save() int64 {
 	stmt, err := database.Db.Prepare("INSERT INTO articles(title, content, created_at, updated_at) VALUES(?,?,?,?)")
 	if err != nil {

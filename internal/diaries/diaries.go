@@ -46,6 +46,22 @@ func GetAll() []Diary {
 	return diaries
 }
 
+func GetDiary(id string) Diary {
+	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from diaries where id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	var diary Diary
+	err = stmt.QueryRow(id).Scan(&diary.ID, &diary.Title, &diary.Content, &diary.CreatedAt, &diary.UpdatedAt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return diary
+}
+
 func (diary Diary) Save() int64 {
 	stmt, err := database.Db.Prepare("INSERT INTO diaries(title, content, created_at, updated_at) VALUES(?,?,?,?)")
 	if err != nil {

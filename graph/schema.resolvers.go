@@ -65,22 +65,24 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*model.Article, error) {
+	dbArticle := articles.GetArticle(id)
 	return &model.Article{
-		ID:        "1",
-		Title:     "This is dummy article title",
-		User:      &model.User{Name: "Selena Gomez"},
-		Content:   "dummy content",
-		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+		ID:        dbArticle.ID,
+		Title:     dbArticle.Title,
+		Content:   dbArticle.Content,
+		CreatedAt: dbArticle.CreatedAt,
+		UpdatedAt: dbArticle.UpdatedAt,
 	}, nil
 }
 
 func (r *queryResolver) Diary(ctx context.Context, id string) (*model.Diary, error) {
+	dbDiary := diaries.GetDiary(id)
 	return &model.Diary{
-		ID:        "1",
-		Title:     "This is dummy diary title",
-		User:      &model.User{Name: "Selena Gomez"},
-		Content:   "dummy diary content",
-		CreatedAt: time.Date(2022, 1, 01, 0, 0, 0, 0, time.Local),
+		ID:        dbDiary.ID,
+		Title:     dbDiary.Title,
+		Content:   dbDiary.Content,
+		CreatedAt: dbDiary.CreatedAt,
+		UpdatedAt: dbDiary.UpdatedAt,
 	}, nil
 }
 
