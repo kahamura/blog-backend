@@ -12,25 +12,37 @@ import (
 	"github.com/ka-aki/blog-backend/graph/generated"
 	"github.com/ka-aki/blog-backend/graph/model"
 	"github.com/ka-aki/blog-backend/internal/articles"
+	"github.com/ka-aki/blog-backend/internal/auth"
 	"github.com/ka-aki/blog-backend/internal/diaries"
 	"github.com/ka-aki/blog-backend/internal/users"
 	"github.com/ka-aki/blog-backend/package/jwt"
 )
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
+	user := auth.ForContext(ctx)
+	if user == nil {
+		return &model.Article{}, fmt.Errorf("access denied")
+	}
+
 	article := articles.Article{
 		Title:     input.Title,
 		Content:   input.Content,
+		User:      user,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 	articleID := article.Save()
+	graphqlUser := &model.User{
+		ID:   user.ID,
+		Name: user.Username,
+	}
 
 	return &model.Article{
 		ID:        strconv.FormatInt(articleID, 10),
 		Title:     article.Title,
 		Content:   article.Content,
 		CreatedAt: article.CreatedAt,
+		User:      graphqlUser,
 		UpdatedAt: article.UpdatedAt,
 	}, nil
 }
@@ -71,11 +83,36 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	user := users.User{
+		Username: input.Username,
+		Password: input.Password,
+	}
+
+	correct := user.Authentificate()
+	if !correct {
+		return "", &users.WrongUsernameOrPasswordError{}
+	}
+
+	token, err := jwt.GenerateToken(user.Username)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	username, err := jwt.ParseToken(input.Token)
+	if err != nil {
+		return "", fmt.Errorf("access denied")
+	}
+
+	token, err := jwt.GenerateToken(username)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*model.Article, error) {
@@ -106,10 +143,15 @@ func (r *queryResolver) Articles(ctx context.Context) ([]*model.Article, error) 
 
 	dbArticles = articles.GetAll()
 	for _, article := range dbArticles {
+		graphqlUser := &model.User{
+			ID:   article.ID,
+			Name: article.User.Username,
+		}
 		resultArticles = append(resultArticles, &model.Article{
 			ID:        article.ID,
 			Title:     article.Title,
 			Content:   article.Content,
+			User:      graphqlUser,
 			CreatedAt: article.CreatedAt,
 			UpdatedAt: article.UpdatedAt,
 		})
