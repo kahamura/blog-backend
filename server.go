@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/ka-aki/blog-backend/graph"
 	"github.com/ka-aki/blog-backend/graph/generated"
+	"github.com/ka-aki/blog-backend/internal/auth"
 	database "github.com/ka-aki/blog-backend/internal/pkg/db/mysql"
 )
 
@@ -22,6 +23,7 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+	router.Use(auth.Middleware())
 
 	database.InitDB()
 	database.Migrate()
