@@ -13,6 +13,8 @@ import (
 	"github.com/ka-aki/blog-backend/graph/model"
 	"github.com/ka-aki/blog-backend/internal/articles"
 	"github.com/ka-aki/blog-backend/internal/diaries"
+	"github.com/ka-aki/blog-backend/internal/users"
+	"github.com/ka-aki/blog-backend/package/jwt"
 )
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
@@ -49,11 +51,23 @@ func (r *mutationResolver) CreateDiary(ctx context.Context, input model.NewDiary
 		CreatedAt: diary.CreatedAt,
 		UpdatedAt: diary.UpdatedAt,
 	}, nil
-
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	user := users.User{
+		Username:  input.Username,
+		Password:  input.Password,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	user.Create()
+
+	token, err := jwt.GenerateToken(user.Username)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
