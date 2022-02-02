@@ -18,7 +18,7 @@ type Article struct {
 }
 
 func GetAll() []Article {
-	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from articles")
+	stmt, err := database.Db.Prepare("SELECT A.id, A.title, A.UserID, U.Username, A.created_at, A.updated_at FROM articles A inner join users U on A.UserID = U.ID")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,14 +31,22 @@ func GetAll() []Article {
 	defer rows.Close()
 
 	var articles []Article
+	var username string
+	var id string
+
 	for rows.Next() {
 		var article Article
-		err := rows.Scan(&article.ID, &article.Title, &article.Content, &article.CreatedAt, &article.UpdatedAt)
+		err := rows.Scan(&article.ID, &article.Title, &article.Content, &article.CreatedAt, &article.UpdatedAt, &id, &username)
 		if err != nil {
 			log.Fatal(err)
 		}
+		article.User = &users.User{
+			ID:       id,
+			Username: username,
+		}
 		articles = append(articles, article)
 	}
+
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +55,7 @@ func GetAll() []Article {
 }
 
 func GetArticle(id string) Article {
-	stmt, err := database.Db.Prepare("select id, title, content, created_at, updated_at from articles where id = ?")
+	stmt, err := database.Db.Prepare("SELECT id, title, content, created_at, updated_at FROM articles WHERE id = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,12 +71,12 @@ func GetArticle(id string) Article {
 }
 
 func (article Article) Save() int64 {
-	stmt, err := database.Db.Prepare("INSERT INTO articles(title, content, created_at, updated_at) VALUES(?,?,?,?)")
+	stmt, err := database.Db.Prepare("INSERT INTO articles(title, content, UserID, created_at, updated_at) VALUES(?,?,?,?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	res, err := stmt.Exec(article.Title, article.Content, article.CreatedAt, article.UpdatedAt)
+	res, err := stmt.Exec(article.Title, article.Content, article.User.ID, article.CreatedAt, article.UpdatedAt)
 	if err != nil {
 		log.Fatal(err)
 	}
